@@ -289,7 +289,7 @@ with tab1:
 # ---------------------------------------------------------------------
 with tab2:
     st.markdown("### 🧠 AI Clinical Text Notes Analyzer")
-    st.write("Routing symptoms to a Llama-3-70B pipeline running over Groq ultra-fast processing architecture.")
+    st.write("Routing symptoms to a pipeline running over ultra-fast processing architecture.")
     
     notes = st.text_area(
         "Secure Patient Chart Input:", 
