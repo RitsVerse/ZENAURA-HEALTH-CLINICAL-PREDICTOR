@@ -313,11 +313,11 @@ with tab2:
             """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------
-# TAB 3: MULTI-CENTER ANALYTICS
+# TAB 3: MULTI-CENTER ANALYTICS & ANONYMIZED REGISTRY
 # ---------------------------------------------------------------------
 with tab3:
     st.markdown(f"### 📊 Centralized Registry Analytics — {selected_hospital}")
-    st.write("Cross-referencing active localized hospital admission files and case configurations.")
+    st.write(f"Cross-referencing active localized hospital admission files and case configurations for {selected_state}.")
     
     if data_mode == "Patient File (CSV)":
         uploaded_file = st.sidebar.file_uploader("Upload Regional Micro-Data Matrix File (.csv)", type=["csv"])
@@ -327,20 +327,31 @@ with tab3:
         else:
             st.info("System is waiting for a CSV spreadsheet file to be uploaded in the sidebar selector.")
     else:
-        # Generate simulated secure records matching the selected hospital grid dynamically
-        mock_clinical_database = [
-            {"Disease": "Cardiovascular Risk", "Age": 62, "Primary_Symptom": "Acute chest pain, dyspnea on mild exertion, radiating left arm discomfort"},
-            {"Disease": "Cardiovascular Risk", "Age": 58, "Primary_Symptom": "Chronic hypertension, syncopal episodes, bilateral ankle edema"},
-            {"Disease": "Cardiovascular Risk", "Age": 67, "Primary_Symptom": "Irregular palpitations, sudden dizziness, borderline bradycardia"},
-            {"Disease": "Respiratory Distress", "Age": 24, "Primary_Symptom": "Acute wheezing, dry cough, SpO2 dropping to 91% under room air"},
-            {"Disease": "Respiratory Distress", "Age": 19, "Primary_Symptom": "Severe bronchial spasms, tachypnea, prolonged expiratory phase"},
-            {"Disease": "Metabolic Crisis", "Age": 45, "Primary_Symptom": "Polyuria, polydipsia, extreme fatigue, random blood glucose > 260mg/dL"},
-            {"Disease": "Metabolic Crisis", "Age": 52, "Primary_Symptom": "Severe diabetic ketoacidosis symptoms, rapid deep breathing, confusion"}
+        # Use the hash of the hospital name as a seed to ensure data is unique per hospital but stays constant when re-rendered!
+        import hashlib
+        hospital_seed = int(hashlib.md5(selected_hospital.encode('utf-8')).hexdigest(), 16) % (10**6)
+        random.seed(hospital_seed)
+        
+        # Base pool of various clinical cases
+        base_cases = [
+            {"Disease": "Cardiovascular Risk", "Age": random.randint(55, 75), "Primary_Symptom": "Acute chest pain, dyspnea on mild exertion, radiating left arm discomfort"},
+            {"Disease": "Cardiovascular Risk", "Age": random.randint(50, 70), "Primary_Symptom": "Chronic hypertension, syncopal episodes, bilateral ankle edema"},
+            {"Disease": "Cardiovascular Risk", "Age": random.randint(60, 80), "Primary_Symptom": "Irregular palpitations, sudden dizziness, borderline bradycardia"},
+            {"Disease": "Respiratory Distress", "Age": random.randint(18, 35), "Primary_Symptom": "Acute wheezing, dry cough, SpO2 dropping to 91% under room air"},
+            {"Disease": "Respiratory Distress", "Age": random.randint(15, 40), "Primary_Symptom": "Severe bronchial spasms, tachypnea, prolonged expiratory phase"},
+            {"Disease": "Metabolic Crisis", "Age": random.randint(40, 60), "Primary_Symptom": "Polyuria, polydipsia, extreme fatigue, random blood glucose > 250mg/dL"},
+            {"Disease": "Metabolic Crisis", "Age": random.randint(35, 65), "Primary_Symptom": "Severe diabetic ketoacidosis symptoms, rapid deep breathing, confusion"},
+            {"Disease": "Neurological Evaluation", "Age": random.randint(45, 75), "Primary_Symptom": "Sudden onset hemiparesis, facial asymmetry, slurred expressive aphasia"},
+            {"Disease": "Infectious Pathogen Core", "Age": random.randint(20, 50), "Primary_Symptom": "High-grade spiking pyrexia, severe rigors, acute productive cough with consolidation"}
         ]
         
-        df_records = pd.DataFrame(mock_clinical_database)
+        # Dynamically sample a random number of cases (e.g., between 4 and 8 cases) unique to this hospital
+        num_cases = random.randint(4, 8)
+        selected_cases = random.sample(base_cases, num_cases)
         
-        # Calculate real-time KPI aggregations
+        df_records = pd.DataFrame(selected_cases)
+        
+        # Calculate real-time KPI aggregations dynamically
         total_patients_count = len(df_records)
         disease_distribution = df_records["Disease"].value_counts()
         dominant_strain = disease_distribution.index[0]
@@ -356,7 +367,7 @@ with tab3:
         
         # Secure DataFrame View - Absolute anonymization (Cisco Module 9 Privacy Rules Compliant)
         st.markdown("#### 🔒 Confidential Case Files Log (Anonymized View)")
-        st.caption("ℹ️ Personally Identifiable Information (PII) like names and IDs has been scrubbed at the edge layer.")
+        st.caption(f"ℹ️ Personally Identifiable Information (PII) has been scrubbed at the edge layer for node: WAN-{selected_state.replace(' ', '-')}-Edge.")
         st.dataframe(df_records[["Disease", "Age", "Primary_Symptom"]], use_container_width=True)
         
         st.markdown("---")
@@ -366,4 +377,4 @@ with tab3:
         for disease, count in disease_distribution.items():
             subset_df = df_records[df_records["Disease"] == disease]
             mean_age = int(subset_df["Age"].mean())
-            st.info(f"**{disease}**: Currently tracking **{count} active cases**. Based on structural historical logs, this disease manifests most frequently within the **{mean_age-5}s to {mean_age+5}s** age bracket (Mean Observed Age: **{mean_age} years old**).")
+            st.info(f"**{disease}**: Currently tracking **{count} active cases** at {selected_hospital}. Based on structural historical logs, this disease manifests most frequently within the **{mean_age-5}s to {mean_age+5}s** age bracket (Mean Observed Age: **{mean_age} years old**).")
