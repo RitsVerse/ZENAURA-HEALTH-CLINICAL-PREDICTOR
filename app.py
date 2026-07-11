@@ -28,7 +28,7 @@ def analyze_symptoms_with_groq(text_input):
                 {"role": "system", "content": system_instruction},
                 {"role": "user", "content": f"Analyze these patient observations: {text_input}"}
             ],
-            model="llama-3.1-8b-instant", 
+            model="llama-3.3-70b-versatile", 
             temperature=0.1, # Low temperature ensures focused, analytical outputs
             max_tokens=150
         )
