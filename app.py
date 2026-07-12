@@ -7,7 +7,6 @@ from groq import Groq
 # =====================================================================
 # GROQ API CLIENT INITIALIZATION
 # =====================================================================
-# Hardcode your API key string below or fetch it safely via st.secrets
 GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
 def analyze_symptoms_with_groq(text_input):
     """Sends raw clinical text notes to Groq API for a real-time smart diagnosis"""
@@ -344,8 +343,6 @@ with tab3:
             {"Disease": "Neurological Evaluation", "Age": random.randint(45, 75), "Primary_Symptom": "Sudden onset hemiparesis, facial asymmetry, slurred expressive aphasia"},
             {"Disease": "Infectious Pathogen Core", "Age": random.randint(20, 50), "Primary_Symptom": "High-grade spiking pyrexia, severe rigors, acute productive cough with consolidation"}
         ]
-        
-        # Dynamically sample a random number of cases (e.g., between 4 and 8 cases) unique to this hospital
         num_cases = random.randint(4, 8)
         selected_cases = random.sample(base_cases, num_cases)
         
